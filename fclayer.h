@@ -89,12 +89,12 @@ template<
   typename TWeightI = Identity,	  // redefine I/O interpretation as needed for weigths
 
   int InStreamW, int OutStreamW,  // safely deducible (stream width must be int though!)
-  typename TW, typename TIDX, typename TA, typename R
->
+  typename TW, typename TIDX, size_t N, typename TA, typename R
+> 
 void StreamingFCLayer_Batch(hls::stream<ap_uint<InStreamW>>  &in,
 			    hls::stream<ap_uint<OutStreamW>> &out,
 			    TW   const        &weights,
-			    TIDX const        &indexs,
+			    TIDX const        (&indexs)[N],
 			    TA   const        &activation,
 			    unsigned const   reps,
 				R const &r) {
