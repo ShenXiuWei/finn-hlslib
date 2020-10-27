@@ -87,11 +87,12 @@
 template<
   unsigned MatrixW, unsigned MatrixH, unsigned SIMD, unsigned PE, unsigned MMV, 
   typename TSrcI = Identity, typename TDstI = Identity, typename TWeightI = Identity,
-  typename TI, typename TO, typename TW, typename TA, typename R
+  typename TI, typename TO, typename TW, typename TIDX, typename TA, typename R
 >
 void Matrix_Vector_Activate_Batch(hls::stream<TI> &in,
 				  hls::stream<TO> &out,
 				  TW  const &weights,
+				  TIDX const &indexs,
 				  TA  const &activation,
 				  int const  reps,
 				  R const &r) {
