@@ -112,11 +112,12 @@ void Matrix_Vector_Activate_Batch(hls::stream<TI> &in,
 
   decltype(activation.init(0,0))  accu[MMV][PE];
 #pragma HLS ARRAY_PARTITION variable=accu complete dim=0
-
+ 
   unsigned  nf   = 0;
   unsigned  sf   = 0;
   unsigned  tile = 0; // invariant: tile = nf*SF + sf
-
+	  
+  decltype(activation.init(0,0))  rep_mem[SF][MatrixH];
   // everything merged into a common iteration space (one "big" loop instead
   // of smaller nested loops) to get the pipelinening the way we want
   unsigned const TOTAL_FOLD = NF * SF;
@@ -146,13 +147,30 @@ void Matrix_Vector_Activate_Batch(hls::stream<TI> &in,
     }
 
     // compute matrix-vector product for each processing element
-    auto const &w = weights.weights(tile);
+    auto const &w = weights.weights(tile);	  
     for(unsigned  pe = 0; pe < PE; pe++) {
 #pragma HLS UNROLL
       auto const  wgt = TWeightI()(w[pe]);
-      for (unsigned mmv = 0; mmv < MMV; mmv++){
+      unsigned iter0 = sf;
+      unsigned iter1 = nf * PE + pe;
+      TA accu_tmp;	    
+      for (unsigned mmv = 0; mmv < MMV; mmv++)
+      {
         auto const  act = TSrcI()(inElem, mmv);
-        accu[mmv][pe] = mac<SIMD>(accu[mmv][pe], wgt, act, r, mmv);
+	unsigned idx = pe * TOTAL_FOLD + tile;
+	unsigned index = indexs[idx];
+	if(iter1 != index)
+	{
+	   accu[mmv][pe] = accu[mmv][pe] + rep_mem[iter0][index]
+           rep_mem[iter0][iter1] = rep_mem[iter0][index]
+	}
+	else
+	{
+	   accu_tmp = accu[mmv][pe];
+	   accu[mmv][pe] = mac<SIMD>(accu[mmv][pe], wgt, act, r, mmv);
+	   rep_mem[iter0][iter1] = accu[mmv][pe] - accu_tmp;	 
+	}      
+        
       }
     }
 
