@@ -94,6 +94,7 @@ template<
 void StreamingFCLayer_Batch(hls::stream<ap_uint<InStreamW>>  &in,
 			    hls::stream<ap_uint<OutStreamW>> &out,
 			    TW const        &weights,
+			    int const       (&indexs)[],
 			    TA const        &activation,
 			    unsigned const   reps,
 				R const &r) {
@@ -107,7 +108,7 @@ void StreamingFCLayer_Batch(hls::stream<ap_uint<InStreamW>>  &in,
   Matrix_Vector_Activate_Batch<MatrixW, MatrixH, SIMD, PE, 1, TSrcI, TDstI, TWeightI>
     (static_cast<hls::stream<ap_uint<SIMD*TSrcI::width>>&>(wa_in),
      static_cast<hls::stream<ap_uint<PE*TDstI::width>>&>  (wa_out),
-     weights, activation, reps, r);
+     weights, indexs, activation, reps, r);
 }
 
 #endif
