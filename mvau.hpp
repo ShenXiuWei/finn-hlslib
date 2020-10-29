@@ -116,7 +116,7 @@ void Matrix_Vector_Activate_Batch(hls::stream<TI> &in,
   unsigned  nf   = 0;
   unsigned  sf   = 0;
   unsigned  tile = 0; // invariant: tile = nf*SF + sf
-	  
+  cout<<"GGGGGGGGGGGGGGGG"<<endl;	  
   decltype(activation.init(0,0))  rep_mem[SF][MatrixH];
   // everything merged into a common iteration space (one "big" loop instead
   // of smaller nested loops) to get the pipelinening the way we want
